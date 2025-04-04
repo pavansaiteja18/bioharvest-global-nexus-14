@@ -71,12 +71,20 @@ const Navbar = () => {
                     {user?.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link to="/farmer" className="flex w-full">Farmer View</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/operator" className="flex w-full">Operator View</Link>
-                  </DropdownMenuItem>
+                  
+                  {/* Role-based dropdown menu items */}
+                  {user?.role === 'farmer' || user?.role === null ? (
+                    <DropdownMenuItem>
+                      <Link to="/farmer" className="flex w-full">Farmer Dashboard</Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  
+                  {user?.role === 'operator' || user?.role === null ? (
+                    <DropdownMenuItem>
+                      <Link to="/operator" className="flex w-full">Operator Dashboard</Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  
                   <DropdownMenuItem>
                     <Link to="/payment" className="flex w-full">Make Payment</Link>
                   </DropdownMenuItem>

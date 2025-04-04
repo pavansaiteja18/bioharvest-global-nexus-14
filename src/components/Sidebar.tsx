@@ -26,9 +26,12 @@ import {
   Leaf,
   Wheat,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Sidebar = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const userRole = user?.role;
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -46,6 +49,7 @@ const Sidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Show common sections for all authenticated users */}
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -80,27 +84,34 @@ const Sidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Role-specific menu items */}
         <SidebarGroup>
-          <SidebarGroupLabel>Users</SidebarGroupLabel>
+          <SidebarGroupLabel>User Area</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/farmer')}>
-                  <Link to="/farmer">
-                    <Wheat className="h-5 w-5" />
-                    <span>Farmer</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Only show Farmer option if user is a farmer */}
+              {(userRole === 'farmer' || userRole === null) && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive('/farmer')}>
+                    <Link to="/farmer">
+                      <Wheat className="h-5 w-5" />
+                      <span>Farmer Dashboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/operator')}>
-                  <Link to="/operator">
-                    <Factory className="h-5 w-5" />
-                    <span>Operator</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Only show Operator option if user is an operator */}
+              {(userRole === 'operator' || userRole === null) && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive('/operator')}>
+                    <Link to="/operator">
+                      <Factory className="h-5 w-5" />
+                      <span>Operator Dashboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
