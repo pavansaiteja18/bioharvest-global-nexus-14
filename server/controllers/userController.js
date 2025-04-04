@@ -17,9 +17,14 @@ const generateToken = (id) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  if (!name || !email || !password || !role) {
+  if (!name || !email || !password) {
     res.status(400);
-    throw new Error('Please add all fields');
+    throw new Error('Please add all required fields');
+  }
+
+  if (!role || (role !== 'farmer' && role !== 'operator')) {
+    res.status(400);
+    throw new Error('Please specify a valid role (farmer or operator)');
   }
 
   // Check if user exists
@@ -74,7 +79,7 @@ const loginUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
-    res.status(400);
+    res.status(401);
     throw new Error('Invalid credentials');
   }
 });
@@ -119,7 +124,7 @@ const updateUser = asyncHandler(async (req, res) => {
 
 // @desc    Get all users
 // @route   GET /api/users
-// @access  Private
+// @access  Private/Admin
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find().select('-password');
   res.status(200).json(users);
@@ -127,7 +132,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 // @desc    Delete user
 // @route   DELETE /api/users/:id
-// @access  Private
+// @access  Private/Admin or Self
 const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
@@ -147,6 +152,22 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.status(200).json({ id: req.params.id });
 });
 
+// @desc    Get farmers only
+// @route   GET /api/users/farmers
+// @access  Private
+const getFarmers = asyncHandler(async (req, res) => {
+  const farmers = await User.find({ role: 'farmer' }).select('-password');
+  res.status(200).json(farmers);
+});
+
+// @desc    Get operators only
+// @route   GET /api/users/operators
+// @access  Private
+const getOperators = asyncHandler(async (req, res) => {
+  const operators = await User.find({ role: 'operator' }).select('-password');
+  res.status(200).json(operators);
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -154,4 +175,6 @@ module.exports = {
   updateUser,
   getAllUsers,
   deleteUser,
+  getFarmers,
+  getOperators,
 };

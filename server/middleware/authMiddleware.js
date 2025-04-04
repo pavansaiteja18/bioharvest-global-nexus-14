@@ -41,4 +41,24 @@ const admin = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { protect, admin };
+// Middleware to check if user has farmer role
+const farmer = asyncHandler(async (req, res, next) => {
+  if (req.user && req.user.role === 'farmer') {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Not authorized as a farmer');
+  }
+});
+
+// Middleware to check if user has operator role
+const operator = asyncHandler(async (req, res, next) => {
+  if (req.user && req.user.role === 'operator') {
+    next();
+  } else {
+    res.status(403);
+    throw new Error('Not authorized as an operator');
+  }
+});
+
+module.exports = { protect, admin, farmer, operator };
