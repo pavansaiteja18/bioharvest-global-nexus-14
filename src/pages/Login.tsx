@@ -32,7 +32,7 @@ const Login = () => {
 
     try {
       setIsLoading(true);
-      await login(email, password, selectedRole);
+      await login(email, password);
       toast({
         title: 'Welcome back!',
         description: 'You have successfully logged in.'

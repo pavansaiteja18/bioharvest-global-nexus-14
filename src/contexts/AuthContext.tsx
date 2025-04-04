@@ -8,15 +8,18 @@ interface User {
   name: string;
   email: string;
   role: UserRole;
+  token: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, role: UserRole) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
 }
+
+const API_URL = 'http://localhost:5000/api/users/';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,44 +42,80 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, password: string, role: UserRole): Promise<void> => {
-    // In a real app, you would validate credentials against a backend
-    // For this demo, we'll simulate a successful login
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newUser = {
-          id: `user-${Date.now()}`,
-          name: email.split('@')[0],
-          email,
-          role
-        };
-        
-        setUser(newUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('bioHarvestUser', JSON.stringify(newUser));
-        resolve();
-      }, 1000);
-    });
-  };
-
   const signup = async (name: string, email: string, password: string, role: UserRole): Promise<void> => {
-    // In a real app, you would send this data to your backend for account creation
-    // For this demo, we'll simulate a successful signup
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newUser = {
-          id: `user-${Date.now()}`,
+    try {
+      const response = await fetch(`${API_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           name,
           email,
-          role
-        };
-        
-        setUser(newUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('bioHarvestUser', JSON.stringify(newUser));
-        resolve();
-      }, 1000);
-    });
+          password,
+          role,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      
+      const userData = {
+        id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role as UserRole,
+        token: data.token,
+      };
+      
+      setUser(userData);
+      setIsAuthenticated(true);
+      localStorage.setItem('bioHarvestUser', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error during signup:', error);
+      throw error;
+    }
+  };
+
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      const response = await fetch(`${API_URL}login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      
+      const userData = {
+        id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role as UserRole,
+        token: data.token,
+      };
+      
+      setUser(userData);
+      setIsAuthenticated(true);
+      localStorage.setItem('bioHarvestUser', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
