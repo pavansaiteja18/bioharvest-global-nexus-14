@@ -144,7 +144,7 @@ const Index = () => {
           </div>
           
           <div className="relative max-w-4xl mx-auto">
-            <div className="absolute top-1/2 left-0 right-0 h-2 bg-green-200 transform -translate-y-1/2 hidden md:block"></div>
+            <div className="absolute top-1/2 left-0 right-0 h-2 transform -translate-y-1/2 hidden md:block"></div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
@@ -199,7 +199,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
             <div className="md:order-2">
               <img 
-                src="https://images.unsplash.com/photo-1516674961214-4f4cb3c34622?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                src="https://rodaleinstitute.org/wp-content/uploads/NatandCody_NewFarm_170816_1464_HiRes.jpg" 
                 alt="Sustainable farming"
                 className="rounded-lg shadow-lg w-full h-full object-cover"
               />
