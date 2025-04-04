@@ -51,7 +51,7 @@ const Sidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/dashboard')}>
+                <SidebarMenuButton asChild isActive={isActive('/dashboard')}>
                   <Link to="/dashboard">
                     <Home className="h-5 w-5" />
                     <span>Dashboard</span>
@@ -60,7 +60,7 @@ const Sidebar = () => {
               </SidebarMenuItem>
               
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/transactions')}>
+                <SidebarMenuButton asChild isActive={isActive('/transactions')}>
                   <Link to="/transactions">
                     <FileText className="h-5 w-5" />
                     <span>Transactions</span>
@@ -69,7 +69,7 @@ const Sidebar = () => {
               </SidebarMenuItem>
               
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/marketplace')}>
+                <SidebarMenuButton asChild isActive={isActive('/marketplace')}>
                   <Link to="/marketplace">
                     <Globe className="h-5 w-5" />
                     <span>Global Market</span>
@@ -85,7 +85,7 @@ const Sidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/farmer')}>
+                <SidebarMenuButton asChild isActive={isActive('/farmer')}>
                   <Link to="/farmer">
                     <Wheat className="h-5 w-5" />
                     <span>Farmer</span>
@@ -94,7 +94,7 @@ const Sidebar = () => {
               </SidebarMenuItem>
               
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/operator')}>
+                <SidebarMenuButton asChild isActive={isActive('/operator')}>
                   <Link to="/operator">
                     <Factory className="h-5 w-5" />
                     <span>Operator</span>
@@ -110,7 +110,7 @@ const Sidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild active={isActive('/about')}>
+                <SidebarMenuButton asChild isActive={isActive('/about')}>
                   <Link to="/about">
                     <Info className="h-5 w-5" />
                     <span>About</span>
