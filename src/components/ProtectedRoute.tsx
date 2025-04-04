@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  allowedRoles = ['farmer', 'operator']
+  allowedRoles = ['farmer', 'operator', null]  // Include null as a valid role to allow users without a specific role
 }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
@@ -19,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // If user doesn't have the required role, redirect to appropriate page
-  if (user && !allowedRoles.includes(user.role)) {
+  if (user && user.role !== null && !allowedRoles.includes(user.role)) {
     if (user.role === 'farmer') {
       return <Navigate to="/farmer" replace />;
     } else if (user.role === 'operator') {
