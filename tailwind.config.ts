@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,40 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for bioenergy marketplace
+				green: {
+					100: '#E6F4EA',
+					200: '#C6E6D2',
+					300: '#A3D9BA',
+					400: '#7FCB9F',
+					500: '#4F7942',
+					600: '#2F5233',
+					700: '#1E3322',
+					800: '#102011',
+					900: '#081009'
+				},
+				earth: {
+					100: '#F5EFEA',
+					200: '#EBDFD4',
+					300: '#D6C4B3',
+					400: '#C2A992',
+					500: '#8B4513',
+					600: '#733A10',
+					700: '#5C2E0D',
+					800: '#45230A',
+					900: '#2E1807'
+				},
+				water: {
+					100: '#E6F1F8',
+					200: '#C6E0F0',
+					300: '#A3D0E8',
+					400: '#7FBFE0',
+					500: '#4682B4',
+					600: '#396A94',
+					700: '#2D5375',
+					800: '#203D56',
+					900: '#142736'
 				}
 			},
 			borderRadius: {
@@ -84,11 +119,26 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
+				},
+				'fade-up': {
+					'0%': { opacity: '0', transform: 'translateY(20px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'flow-right': {
+					'0%': { transform: 'translateX(0)' },
+					'100%': { transform: 'translateX(10px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out',
+				'fade-up': 'fade-up 0.5s ease-out',
+				'flow-right': 'flow-right 1s ease-in-out infinite alternate'
 			}
 		}
 	},
