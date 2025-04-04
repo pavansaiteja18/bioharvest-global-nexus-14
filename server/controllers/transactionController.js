@@ -10,6 +10,26 @@ const getTransactions = asyncHandler(async (req, res) => {
   res.status(200).json(transactions);
 });
 
+// @desc    Get single transaction
+// @route   GET /api/transactions/:id
+// @access  Private
+const getTransactionById = asyncHandler(async (req, res) => {
+  const transaction = await Transaction.findById(req.params.id);
+  
+  if (!transaction) {
+    res.status(404);
+    throw new Error('Transaction not found');
+  }
+
+  // Check if user owns the transaction
+  if (transaction.user.toString() !== req.user.id) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+
+  res.status(200).json(transaction);
+});
+
 // @desc    Create new transaction
 // @route   POST /api/transactions
 // @access  Private
@@ -58,8 +78,32 @@ const updateTransaction = asyncHandler(async (req, res) => {
   res.status(200).json(updatedTransaction);
 });
 
+// @desc    Delete transaction
+// @route   DELETE /api/transactions/:id
+// @access  Private
+const deleteTransaction = asyncHandler(async (req, res) => {
+  const transaction = await Transaction.findById(req.params.id);
+
+  if (!transaction) {
+    res.status(404);
+    throw new Error('Transaction not found');
+  }
+
+  // Check if user owns the transaction
+  if (transaction.user.toString() !== req.user.id) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+
+  await transaction.deleteOne();
+
+  res.status(200).json({ id: req.params.id });
+});
+
 module.exports = {
   getTransactions,
+  getTransactionById,
   createTransaction,
   updateTransaction,
+  deleteTransaction,
 };

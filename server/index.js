@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const { errorHandler } = require('./middleware/errorMiddleware');
 
 // Connect to MongoDB
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

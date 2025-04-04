@@ -86,8 +86,72 @@ const getMe = asyncHandler(async (req, res) => {
   res.status(200).json(req.user);
 });
 
+// @desc    Update user profile
+// @route   PUT /api/users/me
+// @access  Private
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Only update fields that were sent in the request
+  if (req.body.name) user.name = req.body.name;
+  if (req.body.email) user.email = req.body.email;
+  
+  // If password is being updated, hash it
+  if (req.body.password) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.password, salt);
+  }
+
+  const updatedUser = await user.save();
+
+  res.status(200).json({
+    _id: updatedUser.id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    role: updatedUser.role,
+  });
+});
+
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Private
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().select('-password');
+  res.status(200).json(users);
+});
+
+// @desc    Delete user
+// @route   DELETE /api/users/:id
+// @access  Private
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Only allow users to delete their own account or admin users
+  if (user.id.toString() !== req.user.id && req.user.role !== 'admin') {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+
+  await user.deleteOne();
+
+  res.status(200).json({ id: req.params.id });
+});
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
+  updateUser,
+  getAllUsers,
+  deleteUser,
 };
