@@ -30,8 +30,6 @@ const Signup = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       const from = location.state?.from?.pathname || 
@@ -110,7 +108,6 @@ const Signup = () => {
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
           <CardDescription>Enter your details to create your BioHarvest account</CardDescription>
         </CardHeader>
-
         <CardContent>
           {error && (
             <Alert variant="destructive" className="mb-4">
