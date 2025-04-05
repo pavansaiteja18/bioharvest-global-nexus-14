@@ -1,3 +1,4 @@
+
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
@@ -11,15 +12,13 @@ const generateToken = (id) => {
 };
 
 // @desc    Register new user
-// @route   POST /api/users
-// @access  Public
-// @desc    Register new user
-// @route   POST /api/users
+// @route   POST /api/users/signup
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
   console.log('Register user request received:', { name, email, role });
+  console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
 
   if (!name || !email || !password) {
     console.log('Missing required fields');
@@ -59,12 +58,15 @@ const registerUser = asyncHandler(async (req, res) => {
         role: user.role,
       });
 
+      const token = generateToken(user._id);
+      console.log('Generated token:', token ? `${token.substring(0, 10)}...` : 'none');
+
       res.status(201).json({
         _id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id),
+        token: token,
       });
     } else {
       console.log('Failed to create user with data:', { name, email, role });
@@ -78,12 +80,13 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-
 // @desc    Authenticate a user
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
+  console.log('Login attempt for email:', email);
 
   const user = await User.findOne({ email });
 
@@ -104,12 +107,15 @@ const loginUser = asyncHandler(async (req, res) => {
       role: user.role
     });
     
+    const token = generateToken(user._id);
+    console.log('Generated token:', token ? `${token.substring(0, 10)}...` : 'none');
+
     res.json({
       _id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user._id),
+      token: token,
     });
   } else {
     console.log('Invalid credentials for email:', email);

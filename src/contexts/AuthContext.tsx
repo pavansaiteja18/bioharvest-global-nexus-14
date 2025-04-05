@@ -20,6 +20,8 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
 }
+
+// Update API_URL to use the correct port
 const API_URL = 'http://localhost:8080/api/users/';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,7 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Log the data being sent
       console.log('Signup data:', { name, email, password, role });
       
-      const response = await fetch(`${API_URL}`, {
+      // Fix endpoint - use 'signup' instead of empty string
+      const response = await fetch(`${API_URL}signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

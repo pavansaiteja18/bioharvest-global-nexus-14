@@ -3,7 +3,8 @@ interface FetchOptions extends RequestInit {
   token?: string;
 }
 
-const API_URL = 'http://localhost:5000/api/';
+// Update API_URL to use the correct port (8080 instead of 5000)
+const API_URL = 'http://localhost:8080/api/';
 
 /**
  * Utility function for making authenticated API requests
