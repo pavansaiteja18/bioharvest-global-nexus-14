@@ -70,9 +70,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string, role: UserRole): Promise<void> => {
     try {
       // Log the data being sent
-      console.log('Signup data:', { name, email, password, role });
+      console.log('Signup data:', { name, email, role });
       
-      // Fix endpoint - use 'signup' instead of empty string
+      // Modified to use fetch with better error handling
       const response = await fetch(`${API_URL}signup`, {
         method: 'POST',
         headers: {
@@ -89,14 +89,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Log response status
       console.log('Signup response status:', response.status);
       
+      // Handle network errors more explicitly
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ 
+          message: `Server error: ${response.status} ${response.statusText}` 
+        }));
+        throw new Error(errorData.message || `Registration failed with status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       // Log the response data
       console.log('Signup response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
       
       const userData = {
         id: data._id,
@@ -118,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<void> => {
     try {
       // Log the data being sent
-      console.log('Login data:', { email, password });
+      console.log('Login data:', { email });
 
       const response = await fetch(`${API_URL}login`, {
         method: 'POST',
@@ -134,14 +138,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Log response status
       console.log('Login response status:', response.status);
       
+      // Handle network errors more explicitly
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ 
+          message: `Server error: ${response.status} ${response.statusText}` 
+        }));
+        throw new Error(errorData.message || `Login failed with status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       // Log the response data
       console.log('Login response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
       
       const userData = {
         id: data._id,
