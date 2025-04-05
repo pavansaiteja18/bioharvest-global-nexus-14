@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +38,27 @@ const Signup = () => {
       navigate(from);
     }
   }, [user, navigate, location]);
+
+  // Added health check to verify server connection
+  useEffect(() => {
+    const checkServerHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/health');
+        const data = await response.json();
+        console.log('Server health check:', data);
+      } catch (error) {
+        console.error('Server health check failed:', error);
+        setError('Unable to connect to the server. Please make sure the server is running.');
+        toast({
+          title: 'Server connection error',
+          description: 'Unable to connect to the server. Please make sure the server is running.',
+          variant: 'destructive'
+        });
+      }
+    };
+    
+    checkServerHealth();
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

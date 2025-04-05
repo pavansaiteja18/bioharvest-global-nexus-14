@@ -34,6 +34,21 @@ export const fetchApi = async (
       body: options.body ? JSON.parse(options.body.toString()) : undefined
     });
 
+    // Check server connectivity before making request
+    if (!sessionStorage.getItem('serverChecked')) {
+      try {
+        const healthResponse = await fetch(`${API_URL}health`);
+        if (healthResponse.ok) {
+          sessionStorage.setItem('serverChecked', 'true');
+        } else {
+          throw new Error('Server health check failed');
+        }
+      } catch (error) {
+        console.error('Server health check failed:', error);
+        throw new Error('Cannot connect to the server. Please make sure the server is running.');
+      }
+    }
+
     const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
     
     console.log(`API response from ${endpoint}:`, {
