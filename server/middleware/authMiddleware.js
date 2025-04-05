@@ -10,6 +10,12 @@ const protect = asyncHandler(async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
+
+      if (!req.user) {
+        res.status(401);
+        throw new Error('User not found');
+      }
+
       next();
     } catch (error) {
       console.error(error);
@@ -23,32 +29,4 @@ const protect = asyncHandler(async (req, res, next) => {
     throw new Error('Not authorized, no token');
   }
 });
-
-const admin = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403);
-    throw new Error('Not authorized as an admin');
-  }
-});
-
-const farmer = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === 'farmer') {
-    next();
-  } else {
-    res.status(403);
-    throw new Error('Not authorized as a farmer');
-  }
-});
-
-const operator = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === 'operator') {
-    next();
-  } else {
-    res.status(403);
-    throw new Error('Not authorized as an operator');
-  }
-});
-
-export { protect, admin, farmer, operator };
+export  default protect;

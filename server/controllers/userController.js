@@ -13,22 +13,29 @@ const generateToken = (id) => {
 // @desc    Register new user
 // @route   POST /api/users
 // @access  Public
+// @desc    Register new user
+// @route   POST /api/users
+// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
+  console.log('Register user request received:', { name, email, role });
+
   if (!name || !email || !password) {
+    console.log('Missing required fields');
     res.status(400);
     throw new Error('Please add all required fields');
   }
 
-  if (!role || (role !== 'farmer' && role !== 'operator')) {
+  if (!role || !['farmer', 'operator', 'admin'].includes(role)) {
+    console.log('Invalid role:', role);
     res.status(400);
-    throw new Error('Please specify a valid role (farmer or operator)');
+    throw new Error('Please specify a valid role (farmer, operator, or admin)');
   }
 
   const userExists = await User.findOne({ email });
-
   if (userExists) {
+    console.log('User already exists with email:', email);
     res.status(400);
     throw new Error('User already exists');
   }
@@ -36,26 +43,41 @@ const registerUser = asyncHandler(async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    role,
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id),
+  try {
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
     });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+
+    if (user) {
+      console.log('User created successfully:', {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+      });
+    } else {
+      console.log('Failed to create user with data:', { name, email, role });
+      res.status(400);
+      throw new Error('Invalid user data');
+    }
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500);
+    throw new Error(`Server error: ${error.message}`);
   }
 });
+
 
 // @desc    Authenticate a user
 // @route   POST /api/users/login
@@ -65,7 +87,23 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (!user) {
+    console.log('User not found with email:', email);
+    res.status(401);
+    throw new Error('User not found with this email');
+  }
+
+  // Check password
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (isMatch) {
+    console.log('User logged in successfully:', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+    
     res.json({
       _id: user.id,
       name: user.name,
@@ -74,6 +112,7 @@ const loginUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
+    console.log('Invalid credentials for email:', email);
     res.status(401);
     throw new Error('Invalid credentials');
   }
@@ -83,7 +122,12 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-  res.status(200).json(req.user);
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  res.status(200).json(user);
 });
 
 // @desc    Update user profile
@@ -141,7 +185,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   await user.deleteOne();
 
-  res.status(200).json({ id: req.params.id });
+  res.status(200).json({ id: req.params.id, message: 'User removed' });
 });
 
 // @desc    Get farmers only

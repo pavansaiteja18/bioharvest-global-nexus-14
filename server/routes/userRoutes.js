@@ -9,7 +9,7 @@ import {
   getFarmers,
   getOperators
 } from '../controllers/userController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect,admin} from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

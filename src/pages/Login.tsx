@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,9 +15,20 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'operator'>('farmer');
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      // Check if there's a redirect path from location state
+      const from = location.state?.from?.pathname || 
+        (user.role === 'farmer' ? '/farmer' : '/operator');
+      navigate(from);
+    }
+  }, [user, navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,16 +49,12 @@ const Login = () => {
         description: 'You have successfully logged in.'
       });
       
-      // Navigate based on role
-      if (selectedRole === 'farmer') {
-        navigate('/farmer');
-      } else {
-        navigate('/operator');
-      }
-    } catch (error) {
+      // Navigate based on user role - this will be handled by the useEffect above
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: 'Login failed',
-        description: 'Please check your credentials and try again.',
+        description: error.message || 'Please check your credentials and try again.',
         variant: 'destructive'
       });
     } finally {

@@ -15,23 +15,53 @@ export const fetchApi = async (
   const userJson = localStorage.getItem('bioHarvestUser');
   const user = userJson ? JSON.parse(userJson) : null;
   
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(user?.token && { 'Authorization': `Bearer ${user.token}` }),
-      ...options.headers,
-    },
+  // Set default headers
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(user?.token && { 'Authorization': `Bearer ${user.token}` }),
+    ...options.headers,
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(errorData.message || 'Request failed');
-  }
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers,
+  };
 
-  return response.json();
+  try {
+    console.log(`API request to ${endpoint}:`, {
+      method: options.method || 'GET',
+      headers,
+      body: options.body ? JSON.parse(options.body.toString()) : undefined
+    });
+
+    const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
+    
+    console.log(`API response from ${endpoint}:`, {
+      status: response.status,
+      statusText: response.statusText
+    });
+    
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+      console.log(`API response data from ${endpoint}:`, data);
+    } else {
+      data = await response.text();
+      console.log(`API response text from ${endpoint}:`, data);
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || data.error || `Request failed with status ${response.status}`
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`API error for ${endpoint}:`, error);
+    throw error;
+  }
 };
 
 /**

@@ -4,11 +4,11 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
-  allowedRoles?: Array<'farmer' | 'operator' | null>;
+  allowedRoles?: Array<'farmer' | 'operator' | 'admin' | null>;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  allowedRoles = ['farmer', 'operator', null]  // Include null as a valid role to allow users without a specific role
+  allowedRoles = ['farmer', 'operator', 'admin', null]  // Include admin and null as valid roles
 }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
@@ -24,6 +24,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return <Navigate to="/farmer" replace />;
     } else if (user.role === 'operator') {
       return <Navigate to="/operator" replace />;
+    } else if (user.role === 'admin') {
+      return <Navigate to="/dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }
