@@ -3,7 +3,7 @@ interface FetchOptions extends RequestInit {
   token?: string;
 }
 
-const API_URL = 'http://localhost:5000/api/';
+const API_URL = 'http://localhost:8000/api/';
 
 /**
  * Utility function for making authenticated API requests

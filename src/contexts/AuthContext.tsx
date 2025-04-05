@@ -20,7 +20,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
 }
-const API_URL = 'http://localhost:8080/api/users/';
+const API_URL = 'http://localhost:8000/api/users/';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Log the data being sent
       console.log('Signup data:', { name, email, password, role });
       
-      const response = await fetch(`${API_URL}`, {
+      const response = await fetch(`${API_URL}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

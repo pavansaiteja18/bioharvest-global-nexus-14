@@ -198,11 +198,11 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
             <div className="md:order-2">
-              <img 
+              {/* <img 
                 src="https://rodaleinstitute.org/wp-content/uploads/NatandCody_NewFarm_170816_1464_HiRes.jpg" 
                 alt="Sustainable farming"
                 className="rounded-lg shadow-lg w-full h-full object-cover"
-              />
+              /> */}
             </div>
             <div className="space-y-8 md:order-1">
               {[

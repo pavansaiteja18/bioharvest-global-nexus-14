@@ -10,7 +10,7 @@ import marketplaceRoutes from './routes/marketplaceRoutes.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8000;
 
 // Middleware
 app.use(cors());
