@@ -68,6 +68,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (name: string, email: string, password: string, role: UserRole): Promise<void> => {
     try {
+      // Log the data being sent
+      console.log('Signup data:', { name, email, password, role });
+      
       const response = await fetch(`${API_URL}`, {
         method: 'POST',
         headers: {
@@ -81,12 +84,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
+      // Log response status
+      console.log('Signup response status:', response.status);
+      
       const data = await response.json();
+      
+      // Log the response data
+      console.log('Signup response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
       
       const userData = {
         id: data._id,
@@ -99,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       setIsAuthenticated(true);
       localStorage.setItem('bioHarvestUser', JSON.stringify(userData));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during signup:', error);
       throw error;
     }
@@ -107,6 +115,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
+      // Log the data being sent
+      console.log('Login data:', { email, password });
+
       const response = await fetch(`${API_URL}login`, {
         method: 'POST',
         headers: {
@@ -118,12 +129,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
+      // Log response status
+      console.log('Login response status:', response.status);
+      
       const data = await response.json();
+      
+      // Log the response data
+      console.log('Login response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
       
       const userData = {
         id: data._id,
@@ -136,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       setIsAuthenticated(true);
       localStorage.setItem('bioHarvestUser', JSON.stringify(userData));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during login:', error);
       throw error;
     }

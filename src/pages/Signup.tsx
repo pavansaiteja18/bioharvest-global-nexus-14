@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Leaf, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -16,6 +17,7 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'operator'>('farmer');
   const { signup, user } = useAuth();
   const navigate = useNavigate();
@@ -34,9 +36,11 @@ const Signup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     // Validation
     if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill all the required fields.');
       toast({
         title: 'Missing information',
         description: 'Please fill all the required fields.',
@@ -46,6 +50,7 @@ const Signup = () => {
     }
 
     if (password !== confirmPassword) {
+      setError('Passwords do not match. Please try again.');
       toast({
         title: 'Password mismatch',
         description: 'Passwords do not match. Please try again.',
@@ -55,6 +60,7 @@ const Signup = () => {
     }
 
     if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
       toast({
         title: 'Password too short',
         description: 'Password must be at least 6 characters long.',
@@ -65,7 +71,9 @@ const Signup = () => {
 
     try {
       setIsLoading(true);
+      console.log('Attempting signup with:', { name, email, role: selectedRole });
       await signup(name, email, password, selectedRole);
+      
       toast({
         title: 'Account created!',
         description: 'Your account has been successfully created.'
@@ -74,6 +82,7 @@ const Signup = () => {
       // Navigate based on role - this will be handled by the useEffect above
     } catch (error: any) {
       console.error('Signup error:', error);
+      setError(error.message || 'There was an error creating your account. Please try again.');
       toast({
         title: 'Registration failed',
         description: error.message || 'There was an error creating your account. Please try again.',
@@ -97,6 +106,12 @@ const Signup = () => {
           <CardDescription>Enter your details to create your BioHarvest account</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <Tabs defaultValue="farmer" className="mb-4">
             <TabsList className="grid grid-cols-2">
               <TabsTrigger 

@@ -28,14 +28,36 @@ export const fetchApi = async (
   };
 
   try {
+    console.log(`API request to ${endpoint}:`, {
+      method: options.method || 'GET',
+      headers,
+      body: options.body ? JSON.parse(options.body.toString()) : undefined
+    });
+
     const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    console.log(`API response from ${endpoint}:`, {
+      status: response.status,
+      statusText: response.statusText
+    });
+    
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+      console.log(`API response data from ${endpoint}:`, data);
+    } else {
+      data = await response.text();
+      console.log(`API response text from ${endpoint}:`, data);
     }
 
-    return response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || data.error || `Request failed with status ${response.status}`
+      );
+    }
+
+    return data;
   } catch (error) {
     console.error(`API error for ${endpoint}:`, error);
     throw error;

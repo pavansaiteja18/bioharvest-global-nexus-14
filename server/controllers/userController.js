@@ -17,21 +17,26 @@ const generateToken = (id) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
+  console.log('Register user request received:', { name, email, role });
+
   if (!name || !email || !password) {
+    console.log('Missing required fields');
     res.status(400);
     throw new Error('Please add all required fields');
   }
 
   // Check if role is valid
   if (!role || !['farmer', 'operator', 'admin'].includes(role)) {
+    console.log('Invalid role:', role);
     res.status(400);
-    throw new Error('Please specify a valid role (farmer or operator)');
+    throw new Error('Please specify a valid role (farmer, operator, or admin)');
   }
 
   // Check if user exists
   const userExists = await User.findOne({ email });
 
   if (userExists) {
+    console.log('User already exists with email:', email);
     res.status(400);
     throw new Error('User already exists');
   }
@@ -41,31 +46,38 @@ const registerUser = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Create user
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    role,
-  });
+  try {
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
 
-  if (user) {
-    console.log('User created successfully:', {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    });
-    
-    res.status(201).json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+    if (user) {
+      console.log('User created successfully:', {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      });
+      
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+      });
+    } else {
+      console.log('Failed to create user with data:', { name, email, role });
+      res.status(400);
+      throw new Error('Invalid user data');
+    }
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500);
+    throw new Error(`Server error: ${error.message}`);
   }
 });
 
@@ -75,10 +87,19 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('Login request received for email:', email);
+
+  if (!email || !password) {
+    console.log('Missing email or password');
+    res.status(400);
+    throw new Error('Please provide email and password');
+  }
+
   // Check for user email
   const user = await User.findOne({ email });
 
   if (!user) {
+    console.log('User not found with email:', email);
     res.status(401);
     throw new Error('User not found with this email');
   }
@@ -102,6 +123,7 @@ const loginUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id),
     });
   } else {
+    console.log('Invalid credentials for email:', email);
     res.status(401);
     throw new Error('Invalid credentials');
   }
