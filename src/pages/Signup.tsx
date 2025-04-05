@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,9 +17,20 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'farmer' | 'operator'>('farmer');
-  const { signup } = useAuth();
+  const { signup, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      // Check if there's a redirect path from location state
+      const from = location.state?.from?.pathname || 
+        (user.role === 'farmer' ? '/farmer' : '/operator');
+      navigate(from);
+    }
+  }, [user, navigate, location]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +54,15 @@ const Signup = () => {
       return;
     }
 
+    if (password.length < 6) {
+      toast({
+        title: 'Password too short',
+        description: 'Password must be at least 6 characters long.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
       await signup(name, email, password, selectedRole);
@@ -51,16 +71,12 @@ const Signup = () => {
         description: 'Your account has been successfully created.'
       });
       
-      // Navigate based on role
-      if (selectedRole === 'farmer') {
-        navigate('/farmer');
-      } else {
-        navigate('/operator');
-      }
-    } catch (error) {
+      // Navigate based on role - this will be handled by the useEffect above
+    } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: 'Registration failed',
-        description: 'There was an error creating your account. Please try again.',
+        description: error.message || 'There was an error creating your account. Please try again.',
         variant: 'destructive'
       });
     } finally {

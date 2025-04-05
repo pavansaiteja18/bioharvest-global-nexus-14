@@ -1,7 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { fetchApi } from '../utils/api';
 
-type UserRole = 'farmer' | 'operator' | null;
+type UserRole = 'farmer' | 'operator' | 'admin' | null;
 
 interface User {
   id: string;
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const { toast } = useToast();
 
   // Check for existing login on mount
   useEffect(() => {
@@ -35,6 +38,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         setIsAuthenticated(true);
+        
+        // Verify token is still valid
+        const verifyToken = async () => {
+          try {
+            await fetchApi('users/me', {
+              headers: {
+                Authorization: `Bearer ${parsedUser.token}`,
+              },
+            });
+          } catch (error) {
+            console.error('Token verification failed:', error);
+            logout();
+            toast({
+              title: 'Session expired',
+              description: 'Please log in again.',
+              variant: 'destructive',
+            });
+          }
+        };
+        
+        verifyToken();
       } catch (error) {
         console.error('Failed to parse stored user:', error);
         localStorage.removeItem('bioHarvestUser');

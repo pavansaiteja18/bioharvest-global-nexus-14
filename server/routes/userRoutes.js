@@ -11,7 +11,7 @@ const {
   getFarmers,
   getOperators
 } = require('../controllers/userController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, farmer, operator } = require('../middleware/authMiddleware');
 
 // Public routes
 router.post('/', registerUser);

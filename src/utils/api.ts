@@ -15,23 +15,31 @@ export const fetchApi = async (
   const userJson = localStorage.getItem('bioHarvestUser');
   const user = userJson ? JSON.parse(userJson) : null;
   
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(user?.token && { 'Authorization': `Bearer ${user.token}` }),
-      ...options.headers,
-    },
+  // Set default headers
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(user?.token && { 'Authorization': `Bearer ${user.token}` }),
+    ...options.headers,
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(errorData.message || 'Request failed');
-  }
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers,
+  };
 
-  return response.json();
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`API error for ${endpoint}:`, error);
+    throw error;
+  }
 };
 
 /**

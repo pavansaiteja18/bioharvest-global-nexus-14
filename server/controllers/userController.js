@@ -22,7 +22,8 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Please add all required fields');
   }
 
-  if (!role || (role !== 'farmer' && role !== 'operator')) {
+  // Check if role is valid
+  if (!role || !['farmer', 'operator', 'admin'].includes(role)) {
     res.status(400);
     throw new Error('Please specify a valid role (farmer or operator)');
   }
@@ -48,6 +49,13 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
+    console.log('User created successfully:', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+    
     res.status(201).json({
       _id: user.id,
       name: user.name,
@@ -70,7 +78,22 @@ const loginUser = asyncHandler(async (req, res) => {
   // Check for user email
   const user = await User.findOne({ email });
 
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (!user) {
+    res.status(401);
+    throw new Error('User not found with this email');
+  }
+
+  // Check password
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (isMatch) {
+    console.log('User logged in successfully:', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+    
     res.json({
       _id: user.id,
       name: user.name,
@@ -88,7 +111,12 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-  res.status(200).json(req.user);
+  const user = await User.findById(req.user.id).select('-password');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  res.status(200).json(user);
 });
 
 // @desc    Update user profile
@@ -104,7 +132,15 @@ const updateUser = asyncHandler(async (req, res) => {
 
   // Only update fields that were sent in the request
   if (req.body.name) user.name = req.body.name;
-  if (req.body.email) user.email = req.body.email;
+  if (req.body.email) {
+    // Check if email is already in use by another user
+    const emailExists = await User.findOne({ email: req.body.email });
+    if (emailExists && emailExists._id.toString() !== user._id.toString()) {
+      res.status(400);
+      throw new Error('Email already in use');
+    }
+    user.email = req.body.email;
+  }
   
   // If password is being updated, hash it
   if (req.body.password) {
@@ -149,7 +185,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   await user.deleteOne();
 
-  res.status(200).json({ id: req.params.id });
+  res.status(200).json({ id: req.params.id, message: 'User removed' });
 });
 
 // @desc    Get farmers only
