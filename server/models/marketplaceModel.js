@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
-
-const marketplaceItemSchema = mongoose.Schema(
+const marketplaceItemSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -42,4 +41,6 @@ const marketplaceItemSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('MarketplaceItem', marketplaceItemSchema);
+const MarketplaceItem = mongoose.model('MarketplaceItem', marketplaceItemSchema);
+
+export default MarketplaceItem;

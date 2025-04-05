@@ -1,16 +1,23 @@
-
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+
+import {
   getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
   getTransactionById
-} = require('../controllers/transactionController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/transactionController.js';
 
-router.route('/').get(protect, getTransactions).post(protect, createTransaction);
-router.route('/:id').get(protect, getTransactionById).put(protect, updateTransaction).delete(protect, deleteTransaction);
+import { protect } from '../middleware/authMiddleware.js';
 
-module.exports = router;
+router.route('/')
+  .get(protect, getTransactions)
+  .post(protect, createTransaction);
+
+router.route('/:id')
+  .get(protect, getTransactionById)
+  .put(protect, updateTransaction)
+  .delete(protect, deleteTransaction);
+
+export default router;

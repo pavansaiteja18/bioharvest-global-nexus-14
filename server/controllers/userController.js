@@ -1,8 +1,7 @@
-
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const asyncHandler = require('express-async-handler');
-const User = require('../models/userModel');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import asyncHandler from 'express-async-handler';
+import User from '../models/userModel.js';
 
 // Generate JWT
 const generateToken = (id) => {
@@ -27,7 +26,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Please specify a valid role (farmer or operator)');
   }
 
-  // Check if user exists
   const userExists = await User.findOne({ email });
 
   if (userExists) {
@@ -35,11 +33,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Create user
   const user = await User.create({
     name,
     email,
@@ -67,7 +63,6 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Check for user email
   const user = await User.findOne({ email });
 
   if (user && (await bcrypt.compare(password, user.password))) {
@@ -102,11 +97,9 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  // Only update fields that were sent in the request
   if (req.body.name) user.name = req.body.name;
   if (req.body.email) user.email = req.body.email;
-  
-  // If password is being updated, hash it
+
   if (req.body.password) {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(req.body.password, salt);
@@ -141,7 +134,6 @@ const deleteUser = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  // Only allow users to delete their own account or admin users
   if (user.id.toString() !== req.user.id && req.user.role !== 'admin') {
     res.status(401);
     throw new Error('Not authorized');
@@ -168,7 +160,7 @@ const getOperators = asyncHandler(async (req, res) => {
   res.status(200).json(operators);
 });
 
-module.exports = {
+export {
   registerUser,
   loginUser,
   getMe,

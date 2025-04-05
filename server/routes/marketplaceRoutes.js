@@ -1,7 +1,5 @@
-
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getMarketplaceItems,
   getMyMarketplaceItems,
   getMarketplaceItemById,
@@ -9,8 +7,11 @@ const {
   updateMarketplaceItem,
   deleteMarketplaceItem,
   purchaseMarketplaceItem,
-} = require('../controllers/marketplaceController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/marketplaceController.js';
+
+import { protect } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 router.route('/')
   .get(protect, getMarketplaceItems)
@@ -27,4 +28,4 @@ router.route('/:id')
 router.route('/:id/purchase')
   .post(protect, purchaseMarketplaceItem);
 
-module.exports = router;
+export default router;

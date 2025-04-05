@@ -1,20 +1,20 @@
-
-const express = require('express');
-const router = express.Router();
-const { 
-  registerUser, 
-  loginUser, 
-  getMe, 
-  updateUser, 
-  getAllUsers, 
+import express from 'express';
+import {
+  registerUser,
+  loginUser,
+  getMe,
+  updateUser,
+  getAllUsers,
   deleteUser,
   getFarmers,
   getOperators
-} = require('../controllers/userController');
-const { protect, admin } = require('../middleware/authMiddleware');
+} from '../controllers/userController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 // Public routes
-router.post('/', registerUser);
+router.post('/signup', registerUser);
 router.post('/login', loginUser);
 
 // Protected routes
@@ -27,4 +27,4 @@ router.delete('/:id', protect, deleteUser);
 router.get('/farmers', protect, getFarmers);
 router.get('/operators', protect, getOperators);
 
-module.exports = router;
+export default router;

@@ -1,22 +1,15 @@
-
-const jwt = require('jsonwebtoken');
-const asyncHandler = require('express-async-handler');
-const User = require('../models/userModel');
+import jwt from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler';
+import User from '../models/userModel.js';
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Get token from header
       token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Get user from the token
       req.user = await User.findById(decoded.id).select('-password');
-
       next();
     } catch (error) {
       console.error(error);
@@ -31,7 +24,6 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Middleware to check if user has admin role
 const admin = asyncHandler(async (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -41,7 +33,6 @@ const admin = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Middleware to check if user has farmer role
 const farmer = asyncHandler(async (req, res, next) => {
   if (req.user && req.user.role === 'farmer') {
     next();
@@ -51,7 +42,6 @@ const farmer = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Middleware to check if user has operator role
 const operator = asyncHandler(async (req, res, next) => {
   if (req.user && req.user.role === 'operator') {
     next();
@@ -61,4 +51,4 @@ const operator = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { protect, admin, farmer, operator };
+export { protect, admin, farmer, operator };

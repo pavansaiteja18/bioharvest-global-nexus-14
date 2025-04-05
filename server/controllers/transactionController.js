@@ -1,6 +1,5 @@
-
-const asyncHandler = require('express-async-handler');
-const Transaction = require('../models/transactionModel');
+import asyncHandler from 'express-async-handler';
+import Transaction from '../models/transactionModel.js';
 
 // @desc    Get user transactions
 // @route   GET /api/transactions
@@ -15,13 +14,12 @@ const getTransactions = asyncHandler(async (req, res) => {
 // @access  Private
 const getTransactionById = asyncHandler(async (req, res) => {
   const transaction = await Transaction.findById(req.params.id);
-  
+
   if (!transaction) {
     res.status(404);
     throw new Error('Transaction not found');
   }
 
-  // Check if user owns the transaction
   if (transaction.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error('Not authorized');
@@ -63,7 +61,6 @@ const updateTransaction = asyncHandler(async (req, res) => {
     throw new Error('Transaction not found');
   }
 
-  // Check if user owns the transaction
   if (transaction.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error('Not authorized');
@@ -89,7 +86,6 @@ const deleteTransaction = asyncHandler(async (req, res) => {
     throw new Error('Transaction not found');
   }
 
-  // Check if user owns the transaction
   if (transaction.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error('Not authorized');
@@ -100,7 +96,7 @@ const deleteTransaction = asyncHandler(async (req, res) => {
   res.status(200).json({ id: req.params.id });
 });
 
-module.exports = {
+export {
   getTransactions,
   getTransactionById,
   createTransaction,

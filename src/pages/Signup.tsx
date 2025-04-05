@@ -52,7 +52,8 @@ const Signup = () => {
       });
       
       // Navigate based on role
-      if (selectedRole === 'farmer') {
+      if (selectedRole === 'farmer') 
+      {
         navigate('/farmer');
       } else {
         navigate('/operator');
